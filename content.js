@@ -18,6 +18,7 @@
 
   // Units (descending) with minutes per unit
   const UNITS = [
+    { labelSingular: "century", labelPlural: "centuries", minutes: 60 * 24 * 365 * 100 },
     { labelSingular: "decade", labelPlural: "decades", minutes: 60 * 24 * 365 * 10 },
     { labelSingular: "year",   labelPlural: "years",   minutes: 60 * 24 * 365 },
     { labelSingular: "month",  labelPlural: "months",  minutes: 60 * 24 * 30 }, // approximate
