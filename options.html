@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Money is Time </title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="options.css" />
+</head>
+<body>
+  <main class="container">
+    <h1>Money is Time</h1>
+
+    <section>
+      <h2>Your income</h2>
+      <p>Set your income so the extension can convert money into time. Choose the income type (hourly/weekly/monthly/yearly/daily) and enter the amount in your currency.</p>
+
+      <label>
+        Currency symbol:
+        <select id="currencySymbol">
+          <option value="£">£ (GBP)</option>
+          <option value="$">$ (USD)</option>
+          <option value="€">€ (EUR)</option>
+        </select>
+      </label>
+
+      <label>
+        Income type:
+        <select id="incomeType">
+          <option value="hourly">Hourly</option>
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+          <option value="monthly">Monthly</option>
+          <option value="yearly">Yearly</option>
+        </select>
+      </label>
+
+      <label>
+        Amount (<span id="currencyPreview">£</span>):
+        <input id="incomeValue" type="number" min="0" step="0.01" />
+      </label>
+
+      <div class="helper">
+        <label>
+          Hours per week:
+          <input id="hoursPerWeek" type="number" min="1" step="0.1" />
+        </label>
+        <label>
+          Hours per day:
+          <input id="hoursPerDay" type="number" min="1" step="0.1" />
+        </label>
+      </div>
+
+      <button id="saveBtn">Save</button>
+      <span id="status" aria-live="polite"></span>
+    </section>
+
+    <section>
+      <h2>Display</h2>
+      <label>
+        <input type="radio" name="displayMode" value="inline" checked /> Show inline annotations
+      </label>
+      <label>
+        <input type="radio" name="displayMode" value="tooltip" /> Use tooltip (hover)
+      </label>
+      <p class="note">The extension always shows the top 3 time units (e.g. "2 months 1 week 3 days" → limited to the first three non-zero units).</p>
+    </section>
+
+    <section>
+      <h2>About</h2>
+      <p>All settings are stored locally in your browser (chrome.storage.sync). This extension does not transmit your income anywhere.</p>
+      <p class="small">Tips: For yearly incomes, the extension assumes your working hours equal <em>hours per week × 52 weeks</em>. You can change hours per week/day above.</p>
+    </section>
+  </main>
+
+  <script src="options.js"></script>
+</body>
+</html>

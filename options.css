@@ -1,0 +1,42 @@
+/* options.css - minimal, clean layout */
+:root {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  color: #111;
+}
+body {
+  margin: 0;
+  padding: 12px;
+  background: #f7f7f8;
+}
+.container {
+  max-width: 720px;
+  margin: 18px auto;
+  background: white;
+  padding: 18px;
+  border-radius: 8px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+}
+h1 { margin-top: 0; }
+label {
+  display: block;
+  margin: 10px 0;
+}
+input[type="number"], select {
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-left: 8px;
+}
+.helper label { display: inline-block; margin-right: 16px; }
+button#saveBtn {
+  background: #0070f3;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 8px;
+}
+button#saveBtn:hover { background: #0059c9; }
+.status { margin-left: 8px; }
+.note, .small { color: #555; font-size: 0.95em; }
