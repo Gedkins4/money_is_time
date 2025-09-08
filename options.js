@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const currencySymbol = document.getElementById("currencySymbol");
   const incomeType = document.getElementById("incomeType");
   const incomeValue = document.getElementById("incomeValue");
-  const hoursPerWeek = document.getElementById("hoursPerWeek");
+  const daysPerWeek = document.getElementById("daysPerWeek");
   const hoursPerDay = document.getElementById("hoursPerDay");
   const saveBtn = document.getElementById("saveBtn");
   const status = document.getElementById("status");
@@ -17,10 +17,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Load saved settings
-  chrome.storage.sync.get(["hourlyRate","currencySymbol","displayMode","hoursPerWeek","hoursPerDay","incomeType","incomeValue"], (res) => {
+  chrome.storage.sync.get(["hourlyRate","currencySymbol","displayMode","daysPerWeek","hoursPerDay","incomeType","incomeValue"], (res) => {
     currencySymbol.value = res.currencySymbol || "£";
     currencyPreview.textContent = currencySymbol.value;
-    hoursPerWeek.value = (res.hoursPerWeek && Number(res.hoursPerWeek) > 0) ? res.hoursPerWeek : 40;
+    daysPerWeek.value = (res.daysPerWeek && Number(res.daysPerWeek) > 0) ? res.daysPerWeek : 5;
     hoursPerDay.value = (res.hoursPerDay && Number(res.hoursPerDay) > 0) ? res.hoursPerDay : 8;
 
     // If prior saved as explicit hourlyRate but no incomeType/incomeValue, show hourly
@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const curSym = currencySymbol.value || "£";
     const itype = incomeType.value;
     const ivalue = Number(incomeValue.value) || 0;
-    const hpw = Number(hoursPerWeek.value) || 40;
+    const dpw = Number(daysPerWeek.value) || 5;
     const hpd = Number(hoursPerDay.value) || 8;
     let displayMode = "inline";
     for (const r of displayModeRadios) if (r.checked) displayMode = r.value;
@@ -63,6 +63,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // compute hourlyRate from the chosen income type
     let hourlyRate = 0;
+    const hoursPerWeek = dpw * hpd;
+    if (hoursPerWeek <= 0) {
+      showStatus("Please enter positive values for days per week and hours per day.");
+      return;
+    }
+
     switch (itype) {
       case "hourly":
         hourlyRate = ivalue;
@@ -71,15 +77,15 @@ document.addEventListener("DOMContentLoaded", () => {
         hourlyRate = ivalue / hpd;
         break;
       case "weekly":
-        hourlyRate = ivalue / hpw;
+        hourlyRate = ivalue / hoursPerWeek;
         break;
       case "monthly":
-        // approximate: 12 months -> yearly -> divide by (52 * hpw)
+        // approximate: 12 months -> yearly -> divide by (52 * hoursPerWeek)
         const yearlyFromMonthly = ivalue * 12;
-        hourlyRate = yearlyFromMonthly / (52 * hpw);
+        hourlyRate = yearlyFromMonthly / (52 * hoursPerWeek);
         break;
       case "yearly":
-        hourlyRate = ivalue / (52 * hpw);
+        hourlyRate = ivalue / (52 * hoursPerWeek);
         break;
       default:
         hourlyRate = ivalue;
@@ -90,7 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
       currencySymbol: curSym,
       incomeType: itype,
       incomeValue: ivalue,
-      hoursPerWeek: hpw,
+      daysPerWeek: dpw,
       hoursPerDay: hpd,
       hourlyRate: Number(hourlyRate.toFixed(6)),
       displayMode: displayMode

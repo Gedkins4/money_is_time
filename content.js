@@ -13,20 +13,10 @@
     currencySymbol: "£",      // symbol shown in examples & default
     displayMode: "inline",    // "inline" or "tooltip"
     hoursPerWeek: 40,         // used if user sets weekly/monthly/yearly incomes
-    hoursPerDay: 8
+    hoursPerDay: 8,
+    daysPerWeek: 5
   };
 
-  // Units (descending) with minutes per unit
-  const UNITS = [
-    { labelSingular: "century", labelPlural: "centuries", minutes: 60 * 24 * 365 * 100 },
-    { labelSingular: "decade", labelPlural: "decades", minutes: 60 * 24 * 365 * 10 },
-    { labelSingular: "year",   labelPlural: "years",   minutes: 60 * 24 * 365 },
-    { labelSingular: "month",  labelPlural: "months",  minutes: 60 * 24 * 30 }, // approximate
-    { labelSingular: "week",   labelPlural: "weeks",   minutes: 60 * 24 * 7 },
-    { labelSingular: "day",    labelPlural: "days",    minutes: 60 * 24 },
-    { labelSingular: "hour",   labelPlural: "hours",   minutes: 60 },
-    { labelSingular: "min",    labelPlural: "mins",    minutes: 1 }
-  ];
 
   // Regex to find money mentions:
   // - symbol style: £1,000.50 or $1,000 or €1,234
@@ -51,12 +41,13 @@
 
   // Read user's settings from chrome.storage.sync
   function loadSettings(callback) {
-    chrome.storage.sync.get(["hourlyRate", "currencySymbol", "displayMode", "hoursPerWeek", "hoursPerDay"], (res) => {
+    chrome.storage.sync.get(["hourlyRate", "currencySymbol", "displayMode", "hoursPerWeek", "hoursPerDay", "daysPerWeek"], (res) => {
       settings.hourlyRate = (res.hourlyRate && Number(res.hourlyRate) > 0) ? Number(res.hourlyRate) : DEFAULT.hourlyRate;
       settings.currencySymbol = res.currencySymbol || DEFAULT.currencySymbol;
       settings.displayMode = res.displayMode || DEFAULT.displayMode;
       settings.hoursPerWeek = (res.hoursPerWeek && Number(res.hoursPerWeek) > 0) ? Number(res.hoursPerWeek) : DEFAULT.hoursPerWeek;
       settings.hoursPerDay = (res.hoursPerDay && Number(res.hoursPerDay) > 0) ? Number(res.hoursPerDay) : DEFAULT.hoursPerDay;
+      settings.daysPerWeek = (res.daysPerWeek && Number(res.daysPerWeek) > 0) ? Number(res.daysPerWeek) : DEFAULT.daysPerWeek;
       if (callback) callback();
     });
   }
@@ -64,6 +55,24 @@
   // Convert monetary amount (number) to formatted time string (top 3 units)
   function formatTimeFromMoney(amount, hourlyRate) {
     if (!isFinite(amount) || amount <= 0 || !isFinite(hourlyRate) || hourlyRate <= 0) return null;
+
+    const workMinutesPerDay = settings.hoursPerDay * 60;
+    const workMinutesPerWeek = workMinutesPerDay * settings.daysPerWeek;
+    // Approximate months and years based on work schedule
+    const workMinutesPerMonth = workMinutesPerWeek * (52 / 12);
+    const workMinutesPerYear = workMinutesPerWeek * 52;
+
+    const UNITS = [
+      { labelSingular: "century", labelPlural: "centuries", minutes: workMinutesPerYear * 100 },
+      { labelSingular: "decade", labelPlural: "decades", minutes: workMinutesPerYear * 10 },
+      { labelSingular: "year",   labelPlural: "years",   minutes: workMinutesPerYear },
+      { labelSingular: "month",  labelPlural: "months",  minutes: workMinutesPerMonth },
+      { labelSingular: "week",   labelPlural: "weeks",   minutes: workMinutesPerWeek },
+      { labelSingular: "day",    labelPlural: "days",    minutes: workMinutesPerDay },
+      { labelSingular: "hour",   labelPlural: "hours",   minutes: 60 },
+      { labelSingular: "min",    labelPlural: "mins",    minutes: 1 }
+    ];
+
     // convert money to total minutes
     const totalMinutes = (amount / hourlyRate) * 60;
     let remaining = Math.floor(totalMinutes);
@@ -71,6 +80,8 @@
 
     for (const unit of UNITS) {
       if (parts.length >= 3) break;
+      // Ensure unit.minutes is positive to avoid infinite loops
+      if (unit.minutes <= 0) continue;
       const count = Math.floor(remaining / unit.minutes);
       if (count > 0) {
         const label = count === 1 ? unit.labelSingular : unit.labelPlural;
