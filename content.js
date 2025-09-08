@@ -63,14 +63,13 @@
     const workMinutesPerYear = workMinutesPerWeek * 52;
 
     const UNITS = [
-      { labelSingular: "century", labelPlural: "centuries", minutes: workMinutesPerYear * 100 },
-      { labelSingular: "decade", labelPlural: "decades", minutes: workMinutesPerYear * 10 },
-      { labelSingular: "year",   labelPlural: "years",   minutes: workMinutesPerYear },
-      { labelSingular: "month",  labelPlural: "months",  minutes: workMinutesPerMonth },
-      { labelSingular: "week",   labelPlural: "weeks",   minutes: workMinutesPerWeek },
-      { labelSingular: "day",    labelPlural: "days",    minutes: workMinutesPerDay },
-      { labelSingular: "hour",   labelPlural: "hours",   minutes: 60 },
-      { labelSingular: "min",    labelPlural: "mins",    minutes: 1 }
+        { short: "c", minutes: workMinutesPerYear * 100 },
+        { short: "y", minutes: workMinutesPerYear },
+        { short: "mo", minutes: workMinutesPerMonth },
+        { short: "w", minutes: workMinutesPerWeek },
+        { short: "d", minutes: workMinutesPerDay },
+        { short: "h", minutes: 60 },
+        { short: "min", minutes: 1 }
     ];
 
     // convert money to total minutes
@@ -84,14 +83,13 @@
       if (unit.minutes <= 0) continue;
       const count = Math.floor(remaining / unit.minutes);
       if (count > 0) {
-        const label = count === 1 ? unit.labelSingular : unit.labelPlural;
-        parts.push(`${count} ${label}`);
+        parts.push(`${count}${unit.short}`);
         remaining -= count * unit.minutes;
       }
     }
-    // If nothing matched (amount smaller than 1 minute), show "<1 min"
-    if (parts.length === 0) return "<1 min";
-    return parts.join(" ");
+    // If nothing matched (amount smaller than 1 minute), show "<1m"
+    if (parts.length === 0) return "<1m";
+    return parts.join("");
   }
 
   // Given a text node, return a DocumentFragment with replacements:
@@ -130,13 +128,13 @@
         if (settings.displayMode === "tooltip") {
           // put original money text inside span and add title attr
           wrapper.appendChild(moneyText);
-          wrapper.title = `~ ${timeStr}`;
+          wrapper.title = timeStr;
         } else {
           // inline: append the original money text then a small annotation
           wrapper.appendChild(moneyText);
           const ann = document.createElement("span");
           ann.className = "mt-annotation";
-          ann.textContent = ` (~${timeStr})`;
+          ann.textContent = ` (${timeStr})`;
           wrapper.appendChild(ann);
         }
 
