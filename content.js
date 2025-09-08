@@ -89,7 +89,7 @@
     }
     // If nothing matched (amount smaller than 1 minute), show "<1m"
     if (parts.length === 0) return "<1m";
-    return parts.join("");
+    return parts.join(" ");
   }
 
   // Given a text node, return a DocumentFragment with replacements:
@@ -129,14 +129,19 @@
           // put original money text inside span and add title attr
           wrapper.appendChild(moneyText);
           wrapper.title = timeStr;
-        } else {
+        } else if (settings.displayMode === "inline") {
           // inline: append the original money text then a small annotation
           wrapper.appendChild(moneyText);
           const ann = document.createElement("span");
           ann.className = "mt-annotation";
           ann.textContent = ` (${timeStr})`;
           wrapper.appendChild(ann);
+        } else if (settings.displayMode === "replace") {
+          // replace: show only the time string instead of money
+          const replaced = document.createTextNode(timeStr);
+          wrapper.appendChild(replaced);
         }
+
 
         frag.appendChild(wrapper);
       } else {
